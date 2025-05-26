@@ -1,6 +1,7 @@
 import heapq
 import math
 import time
+import itertools
 from collections import deque
 
 # Restaurant Dataset
@@ -127,7 +128,6 @@ def heuristic(restaurant, preferred_rating):
     rating_score = 0 if restaurant['rating'] >= preferred_rating else (preferred_rating - restaurant['rating'])
     return rating_score
 
-import itertools
 counter = itertools.count()
 
 def a_star_search(user_location, restaurants, preferred_rating, max_distance, budget):
@@ -137,17 +137,20 @@ def a_star_search(user_location, restaurants, preferred_rating, max_distance, bu
         key=lambda r: r["rating"],
         reverse=True
     )
-    
+
     queue = []
-    heapq.heappush(queue, (0, user_location, [], 0))  # (f(n), location, path, g(n))
+    # PUSH 5 ELEMEN! => (f_cost, counter, location, path, g_cost)
+    heapq.heappush(queue, (0, next(counter), user_location, [], 0))
     visited = set()
     best_restaurants = []
     search_times = []
 
     while queue and len(best_restaurants) < 10:
         start_time = time.time()
-        f_cost, current_location, path, g_cost = heapq.heappop(queue)
+        # POP 5 ELEMEN!
+        f_cost, _, current_location, path, g_cost = heapq.heappop(queue)
 
+        # Jika sudah mencapai node destinasi, tambahkan ke hasil
         if path:
             restaurant = path[-1]
             best_restaurants.append(restaurant)
@@ -166,10 +169,10 @@ def a_star_search(user_location, restaurants, preferred_rating, max_distance, bu
                 continue
 
             h_cost = heuristic(restaurant, preferred_rating)
-            f_cost = g_cost + distance + h_cost
+            total_f_cost = g_cost + distance + h_cost
 
             new_path = path + [restaurant]
-            heapq.heappush(queue, (f_cost, restaurant["location"], new_path, g_cost + distance))
+            heapq.heappush(queue, (total_f_cost, next(counter), restaurant["location"], new_path, g_cost + distance))
 
     return best_restaurants, search_times
 
