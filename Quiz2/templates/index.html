@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Restaurant Recommendation System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #f9fafc 70%, #eef3f8 100%);
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background: linear-gradient(90deg, #23272f 80%,rgb(213, 212, 210) 100%);
+            color: #fff;
+            padding: 28px 0 20px 0;
+            text-align: center;
+            font-size: 2em;
+            font-weight: 500;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 40px auto 0 auto;
+            max-width: 1000px;
+            gap: 48px;
+        }
+        .filter-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 18px rgba(0,0,0,0.06);
+            padding: 32px 28px 32px 28px;
+            min-width: 270px;
+            max-width: 350px;
+        }
+        .filter-card h3 {
+            margin-bottom: 26px;
+            font-size: 1.3em;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .form-row {
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-row label {
+            margin-bottom: 6px;
+            color: #333;
+            font-size: 0.99em;
+            letter-spacing: 0.5px;
+        }
+        .form-row input,
+        .form-row select {
+            border: 1px solid #d2d2d2;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 1em;
+            outline: none;
+            background: #f6f7f8;
+            transition: border 0.2s;
+        }
+        .form-row input:focus,
+        .form-row select:focus {
+            border: 1.5px solid #4895ef;
+            background: #fff;
+        }
+        .search-btn {
+            width: 100%;
+            background: #23272f;
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            padding: 12px 0;
+            font-size: 1.09em;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.19s, transform 0.17s;
+        }
+        .search-btn:hover {
+            background: #4895ef;
+            transform: scale(1.04);
+        }
+        .map-card {
+            background: #f6f7f8;
+            border-radius: 15px;
+            padding: 15px;
+            min-width: 750px;
+            min-height: 490px;
+            max-width: 900px;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.04);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        @media (max-width: 1000px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                gap: 24px;
+            }
+            .map-card {
+                min-width: 290px;
+                width: 100%;
+                min-height: 300px;
+                padding: 6px;
+            }
+        }
+        .result-card {
+            margin-top: 32px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+            padding: 18px 22px 18px 22px;
+            font-size: 1.04em;
+        }
+        .result-card h4 { margin-bottom: 12px; }
+        .result-card ul { list-style: none; padding: 0; }
+        .result-card li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="header">Restaurant Recommendation System</div>
+    <div class="container">
+        <form class="filter-card" method="POST">
+            <h3>Filter</h3>
+            {% if warning_msg %}
+                <div style="color:#c00; margin-bottom:12px; font-size:1em;">{{ warning_msg }}</div>
+            {% endif %}
+            <div class="form-row">
+                <label for="priority">Priority:</label>
+                <select name="priority" id="priority" required>
+                    <option value="rating">Rating</option>
+                    <option value="distance">Distance</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="min_rating">Minimum Rating (1-5):</label>
+                <input type="number" step="0.1" name="min_rating" min="0" max="5" id="min_rating" required>
+            </div>
+            <div class="form-row">
+                <label for="max_distance">Max Distance (km):</label>
+                <input type="number" step="0.1" name="max_distance" min="0" id="max_distance" required>
+            </div>
+            <div class="form-row">
+                <label for="budget">Maximum Budget (in thousands IDR):</label>
+                <input type="number" name="budget" min="0" id="budget" required>
+            </div>
+            <!-- Hidden input for JS geolocation -->
+            <input type="hidden" name="user_lat" id="user_lat" value="">
+            <input type="hidden" name="user_lon" id="user_lon" value="">
+            <button type="submit" class="search-btn" id="search-btn">Search</button>
+        </form>
+        <div class="map-card">
+            {% if map_html %}
+                {{ map_html|safe }}
+            {% else %}
+                <div style="color:#888; text-align:center; font-size:1.3em; font-weight:500;">MAP</div>
+            {% endif %}
+        </div>
+        <!-- Show the results -->
+        {% if best_restaurants %}
+            <div class="result-card">
+            <h4>Top Recommendations:</h4>
+            <ul>
+                {% for r in best_restaurants %}
+                <li>
+                    <b>{{ loop.index }}.</b>
+                    {% if r.recommended %}👍 {% endif %}
+                    <b>{{ r.name }}</b> &mdash; <span style="color:#2d9d52">Rating: {{ r.rating }}</span> — {{ r.price_range }}
+                    {% if priority != 'rating' and r.distance_from_user is defined %}
+                        — <span style="color:#2855d9">Distance: {{ "%.2f"|format(r.distance_from_user) }} km</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            </div>
+        {% endif %}
+    </div>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                document.getElementById('user_lat').value = position.coords.latitude;
+                document.getElementById('user_lon').value = position.coords.longitude;
+            }, function(error){
+                console.warn('Geolocation failed or denied.', error);
+            });
+        }
+    });
+    </script>
+</body>
+</html>
