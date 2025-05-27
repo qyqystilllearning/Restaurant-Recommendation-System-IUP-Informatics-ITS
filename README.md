@@ -12,6 +12,10 @@
 
 ---
 
+## Introduction
+
+This web-based restaurant recommendation system helps users find the best nearby restaurants based on their location, budget, distance, and rating preferences. Users can enter their coordinates manually or use auto-detection. The system uses A* and BFS algorithms to suggest restaurants and displays results on an interactive map with routes using OSRM. It's designed to make dining decisions faster and more convenient.
+
 ## Background and Problem Statement
 
 When individuals or groups plan to eat out, there will always be debates in choosing where they want to eat due to the varying preferences of each individual. They must also consider constraints such as budget, approximate cost, travel distance, operational hours, and more. The abundance of restaurant options combined with limited time and varying preferences creates this problem.
@@ -37,13 +41,13 @@ In this project, we implement a restaurant recommendation system using two popul
 
 The purpose is to recommend restaurants based on user-defined criteria, including distance, rating, and budget. We also provide visualizations of the routes and restaurants on an interactive map to enhance user experience and understanding.
 
-## Output
+## Demo Output
 
-For the first step, we must run the ```app.py``` in the ```Quiz2``` folder and follow the output link on from the terminal:
+Please download the ```Quiz 2``` Folder. Then, run the ```app.py``` in the ```Quiz2``` folder and follow the output link on from the terminal:
 
 ![image](https://github.com/user-attachments/assets/473349f5-26cb-4d38-b9b6-1408d8d6ff56)
 
-We build a web-based that looks like this:
+And then the web will looks like this:
 
 ![image](https://github.com/user-attachments/assets/a11c979b-1d42-43b6-b566-8488c59cebd3)
 
