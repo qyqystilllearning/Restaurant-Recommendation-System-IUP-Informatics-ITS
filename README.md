@@ -63,3 +63,10 @@ The result:
 
 ![image](https://github.com/user-attachments/assets/7040bb66-7483-4067-9563-93e7941230bd)
 
+Task Distribution:
+1. Reino Yuris Kusumanegara - 33.33% : Web and app development engineer
+2. Muhammad Rizqy Hidayat - 33.33% : Rating-priority algorithm development,
+debugger, and github execution
+3. Muhammad Hanif Fakhriansyah - 33.33% : Distance-priority algorithm development,
+tester, and report maker
+
